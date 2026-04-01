@@ -1,13 +1,30 @@
-# State Space Models and Kalman Filtering for Time Series Analysis
+# State Space Models and Kalman Filtering for Time Series
 
-**Published:** 2025-01-17
-**Medium:** [https://medium.com/@kyle-t-jones/state-space-models-and-kalman-filtering-for-time-series-analysis-df404ad4cc2b](https://medium.com/@kyle-t-jones/state-space-models-and-kalman-filtering-for-time-series-analysis-df404ad4cc2b)
+This project demonstrates state space models and Kalman filtering for time series analysis.
 
-## About
+## Project Structure
 
-Place the code for this article in this repository.
-The original article export is saved as `article.md`.
+```
+.
+├── README.md           # This file
+├── main.py            # Main entry point
+├── config.yaml        # Configuration file
+├── requirements.txt   # Python dependencies
+├── src/               # Core functions
+│   ├── core.py        # Kalman filter functions
+│   └── plotting.py    # Tufte-style plotting utilities
+├── tests/             # Unit tests
+├── data/              # Data files
+└── images/            # Generated plots and figures
+```
 
-## Files
+## Configuration
 
-Add your `.ipynb`, `.py`, `.yaml`, `.js`, `.ts`, or other project files here.
+Edit `config.yaml` to customize model parameters and output settings.
+
+## Kalman Filter
+
+The Kalman filter:
+- Estimates hidden states from noisy observations
+- Recursively updates state estimates
+- Provides optimal filtering under Gaussian assumptions
