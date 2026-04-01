@@ -29,7 +29,7 @@ class KalmanFilterCustom:
         self.x = self.model.x0
         self.P = self.model.P0
 
-def predict(self):
+    def predict(self):
         """Prediction step"""
         self.x = self.model.F @ self.x
         self.P = self.model.F @ self.P @ self.model.F.T + self.model.Q
@@ -77,7 +77,7 @@ class ExtendedKalmanFilter:
         self.Q = np.eye(q_dim) * 0.1
         self.R = np.eye(r_dim) * 1.0
 
-def predict(self, x, P):
+    def predict(self, x, P):
         x_pred = self.f(x)
         F = self.numerical_jacobian(self.f, x)
         P_pred = F @ P @ F.T + self.Q
@@ -116,6 +116,6 @@ def visualize_results(true_states, measurements, estimated_states):
     plt.plot(estimated_states[:, 0], 'g-', label="Estimated Position")
     plt.title("Kalman Filter Tracking")
     plt.legend()
-        plt.show()
+    plt.show()
 # Visualize
 visualize_results(true_states, measurements, estimated_states)
