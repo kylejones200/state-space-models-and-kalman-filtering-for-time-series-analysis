@@ -48,7 +48,7 @@ def main():
     x0 = np.zeros(config['model']['state_dim'])
     P0 = np.eye(config['model']['state_dim'])
     
-        x_filtered, P = kalman_filter(y, F, H, Q, R, x0, P0)
+    x_filtered, P = kalman_filter(y, F, H, Q, R, x0, P0)
     
     plot_kalman_filter(y, x_filtered, "Kalman Filter Results",
                       output_dir / 'kalman_filter.png')
