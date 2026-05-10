@@ -71,48 +71,49 @@ def fit_structural_model(ts: pd.Series):
     return results
 
 
-def plot_decomposition(ts: pd.Series, results) -> None:
+def plot_decomposition(ts: pd.Series, results, plot: bool = False) -> None:
     """Plot observed data and smoothed trend component."""
     logger.info("Plotting Kalman-smoothed trend decomposition...")
 
-    fig, ax = plt.subplots(figsize=(14, 6))
-    plt.rcParams.update(
-        {
-            "font.family": "serif",
-            "axes.spines.top": False,
-            "axes.spines.right": False,
-            "axes.grid": False,
-        }
-    )
+    if plot:
+        fig, ax = plt.subplots(figsize=(14, 6))
+        plt.rcParams.update(
+            {
+                "font.family": "serif",
+                "axes.spines.top": False,
+                "axes.spines.right": False,
+                "axes.grid": False,
+            }
+        )
 
     # Observed series
-    ax.plot(ts.index, ts.values, "k-", label="Observed", alpha=0.7, linewidth=1.8)
+        ax.plot(ts.index, ts.values, "k-", label="Observed", alpha=0.7, linewidth=1.8)
 
     # Smoothed level (trend) component
-    smoothed = results.level.smoothed
-    ax.plot(
-        ts.index,
-        smoothed,
-        color="#1f77b4",
-        linewidth=2.2,
-        label="Kalman-smoothed level",
-    )
+        smoothed = results.level.smoothed
+        ax.plot(
+            ts.index,
+            smoothed,
+            color="#1f77b4",
+            linewidth=2.2,
+            label="Kalman-smoothed level",
+        )
 
-    ax.set_title(
-        "Kalman Filter Decomposition: Observed vs. Smoothed Trend",
-        fontsize=14,
-        fontweight="bold",
-    )
-    ax.set_ylabel("Energy Consumption", fontsize=11)
-    ax.legend(frameon=True, fancybox=True, shadow=True, fontsize=10)
-    plt.tight_layout()
-    output_path = BASE_DIR / "kalman_decomposition.png"
-    plt.savefig(output_path, dpi=300, bbox_inches="tight")
-    logger.info("Saved decomposition plot to %s", output_path)
-    plt.close(fig)
+        ax.set_title(
+            "Kalman Filter Decomposition: Observed vs. Smoothed Trend",
+            fontsize=14,
+            fontweight="bold",
+        )
+        ax.set_ylabel("Energy Consumption", fontsize=11)
+        ax.legend(frameon=True, fancybox=True, shadow=True, fontsize=10)
+        plt.tight_layout()
+        output_path = BASE_DIR / "kalman_decomposition.png"
+        plt.savefig(output_path, dpi=300, bbox_inches="tight")
+        logger.info("Saved decomposition plot to %s", output_path)
+        plt.close(fig)
 
 
-def plot_forecast(ts: pd.Series, results, horizon: int = 10) -> None:
+def plot_forecast(ts: pd.Series, results, horizon: int = 10, plot: bool = False) -> None:
     """Produce and plot a multi-step forecast with confidence intervals."""
     logger.info("Producing %d-step Kalman forecast...", horizon)
     forecast_res = results.get_forecast(steps=horizon)
@@ -125,63 +126,64 @@ def plot_forecast(ts: pd.Series, results, horizon: int = 10) -> None:
         freq="YS",
     )
 
-    fig, ax = plt.subplots(figsize=(14, 6))
-    plt.rcParams.update(
-        {
-            "font.family": "serif",
-            "axes.spines.top": False,
-            "axes.spines.right": False,
-            "axes.grid": False,
-        }
-    )
+    if plot:
+        fig, ax = plt.subplots(figsize=(14, 6))
+        plt.rcParams.update(
+            {
+                "font.family": "serif",
+                "axes.spines.top": False,
+                "axes.spines.right": False,
+                "axes.grid": False,
+            }
+        )
 
     # Plot last 20 years of history for context
-    history_window = min(20, len(ts))
-    ax.plot(
-        ts.index[-history_window:],
-        ts.values[-history_window:],
-        "k-",
-        label="Historical",
-        linewidth=2,
-        alpha=0.7,
-    )
+        history_window = min(20, len(ts))
+        ax.plot(
+            ts.index[-history_window:],
+            ts.values[-history_window:],
+            "k-",
+            label="Historical",
+            linewidth=2,
+            alpha=0.7,
+        )
 
     # Plot forecast and 95% interval
-    ax.plot(
-        forecast_index,
-        mean_forecast.values,
-        "b--",
-        label="Kalman Forecast",
-        linewidth=2,
-        marker="o",
-    )
-    lower = conf_int.iloc[:, 0].values
-    upper = conf_int.iloc[:, 1].values
+        ax.plot(
+            forecast_index,
+            mean_forecast.values,
+            "b--",
+            label="Kalman Forecast",
+            linewidth=2,
+            marker="o",
+        )
+        lower = conf_int.iloc[:, 0].values
+        upper = conf_int.iloc[:, 1].values
     # Energy consumption cannot be negative; clip lower band at zero for visualization
-    lower_clipped = lower.clip(min=0.0)
+        lower_clipped = lower.clip(min=0.0)
 
-    ax.fill_between(
-        forecast_index,
-        lower_clipped,
-        upper,
-        color="#1f77b4",
-        alpha=0.2,
-        label="95% Interval",
-    )
+        ax.fill_between(
+            forecast_index,
+            lower_clipped,
+            upper,
+            color="#1f77b4",
+            alpha=0.2,
+            label="95% Interval",
+        )
 
-    ax.axvline(ts.index[-1], color="gray", linestyle=":", linewidth=1, alpha=0.6)
-    ax.set_title(
-        "Kalman Filter Forecast with Uncertainty",
-        fontsize=14,
-        fontweight="bold",
-    )
-    ax.set_ylabel("Energy Consumption", fontsize=11)
-    ax.legend(frameon=False, fancybox=False, shadow=False, fontsize=10)
-    plt.tight_layout()
-    output_path = BASE_DIR / "kalman_forecast.png"
-    plt.savefig(output_path, dpi=300, bbox_inches="tight")
-    logger.info("Saved forecast plot to %s", output_path)
-    plt.close(fig)
+        ax.axvline(ts.index[-1], color="gray", linestyle=":", linewidth=1, alpha=0.6)
+        ax.set_title(
+            "Kalman Filter Forecast with Uncertainty",
+            fontsize=14,
+            fontweight="bold",
+        )
+        ax.set_ylabel("Energy Consumption", fontsize=11)
+        ax.legend(frameon=False, fancybox=False, shadow=False, fontsize=10)
+        plt.tight_layout()
+        output_path = BASE_DIR / "kalman_forecast.png"
+        plt.savefig(output_path, dpi=300, bbox_inches="tight")
+        logger.info("Saved forecast plot to %s", output_path)
+        plt.close(fig)
 
 
 def main() -> None:

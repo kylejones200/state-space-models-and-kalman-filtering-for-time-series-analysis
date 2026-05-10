@@ -34,16 +34,17 @@ def kalman_filter(y: np.ndarray, F: np.ndarray, H: np.ndarray, Q: np.ndarray,
     
     return x, P
 
-def plot_kalman_filter(y: np.ndarray, x_filtered: np.ndarray, title: str, output_path: Path):
+def plot_kalman_filter(y: np.ndarray, x_filtered: np.ndarray, title: str, output_path: Path, plot: bool = False):
     """Plot Kalman filter results """
-    fig, ax = plt.subplots(figsize=(10, 6))
+    if plot:
+        fig, ax = plt.subplots(figsize=(10, 6))
     
-    ax.plot(y, label="Observed", color="#4A90A4", linewidth=1.2, alpha=0.7)
-    ax.plot(x_filtered[:, 0], label="Filtered State", color="#D4A574", linewidth=1.2)
-    ax.set_xlabel("Time")
-    ax.set_ylabel("Value")
-    ax.legend(loc='best')
+        ax.plot(y, label="Observed", color="#4A90A4", linewidth=1.2, alpha=0.7)
+        ax.plot(x_filtered[:, 0], label="Filtered State", color="#D4A574", linewidth=1.2)
+        ax.set_xlabel("Time")
+        ax.set_ylabel("Value")
+        ax.legend(loc='best')
     
-    plt.savefig(output_path, dpi=100, bbox_inches="tight")
-    plt.close()
+        plt.savefig(output_path, dpi=100, bbox_inches="tight")
+        plt.close()
 

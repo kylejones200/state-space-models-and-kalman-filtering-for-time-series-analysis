@@ -109,13 +109,14 @@ def initialize_ukf(dim_x, dim_z, fx, hx):
     return ukf
 
 
-def visualize_results(true_states, measurements, estimated_states):
-    plt.figure(figsize=(12, 6))
-    plt.plot(true_states[0], label="True Position")
-    plt.plot(measurements, 'r.', label="Measurements")
-    plt.plot(estimated_states[:, 0], 'g-', label="Estimated Position")
-    plt.title("Kalman Filter Tracking")
-    plt.legend()
-    plt.show()
+def visualize_results(true_states, measurements, estimated_states, plot: bool = False):
+    if plot:
+        plt.figure(figsize=(12, 6))
+        plt.plot(true_states[0], label="True Position")
+        plt.plot(measurements, 'r.', label="Measurements")
+        plt.plot(estimated_states[:, 0], 'g-', label="Estimated Position")
+        plt.title("Kalman Filter Tracking")
+        plt.legend()
+        plt.show()
 # Visualize
 visualize_results(true_states, measurements, estimated_states)
