@@ -65,7 +65,7 @@ def track_object():
     for measurement in measurements:
         kf.predict()
         est_state, _ = kf.update(measurement)
-        estimated_states.append(est_state)
+        pd.concat([estimated_states, est_state])
     return np.array(estimated_states), true_states, measurements
 # Execute tracking
 estimated_states, true_states, measurements = track_object()
