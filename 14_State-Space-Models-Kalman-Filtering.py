@@ -13,6 +13,7 @@ All plots are saved as PNGs so they can be used directly in articles.
 
 from __future__ import annotations
 
+import signalplot
 import logging
 from pathlib import Path
 
@@ -77,14 +78,7 @@ def plot_decomposition(ts: pd.Series, results, plot: bool = False) -> None:
 
     if plot:
         fig, ax = plt.subplots(figsize=(14, 6))
-        plt.rcParams.update(
-            {
-                "font.family": "serif",
-                "axes.spines.top": False,
-                "axes.spines.right": False,
-                "axes.grid": False,
-            }
-        )
+        signalplot.apply(font_family='serif')
 
     # Observed series
         ax.plot(ts.index, ts.values, "k-", label="Observed", alpha=0.7, linewidth=1.8)
@@ -128,15 +122,7 @@ def plot_forecast(ts: pd.Series, results, horizon: int = 10, plot: bool = False)
 
     if plot:
         fig, ax = plt.subplots(figsize=(14, 6))
-        plt.rcParams.update(
-            {
-                "font.family": "serif",
-                "axes.spines.top": False,
-                "axes.spines.right": False,
-                "axes.grid": False,
-            }
-        )
-
+        
     # Plot last 20 years of history for context
         history_window = min(20, len(ts))
         ax.plot(
