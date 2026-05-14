@@ -24,7 +24,7 @@ Structural time series models make the unobserved components explicit. A typical
 
 Dynamic linear models (DLMs) extend this framework by allowing regression coefficients themselves to evolve over time. For example, you could regress consumption on production, prices, or weather, while allowing the sensitivity to each driver to change year by year.
 
-In practice, you specify a state vector that includes both latent levels/trends and time-varying regression coefficients, then use the Kalman filter to update that full state as new data arrives. This makes DLMs powerful tools for modeling **time-varying relationships** in energy systems.
+In practice, you specify a state vector that includes both latent levels/trends and time-varying regression coefficients, then use the Kalman filter to update that full state as new data arrives. This makes DLMs powerful tools for modeling time-varying relationships in energy systems.
 
 ## Applications
 
