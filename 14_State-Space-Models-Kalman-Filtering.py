@@ -13,14 +13,13 @@ All plots are saved as PNGs so they can be used directly in articles.
 
 from __future__ import annotations
 
-import signalplot
 import logging
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import pandas as pd
+import signalplot
 from statsmodels.tsa.statespace.structural import UnobservedComponents
-
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -78,12 +77,12 @@ def plot_decomposition(ts: pd.Series, results, plot: bool = False) -> None:
 
     if plot:
         fig, ax = plt.subplots(figsize=(14, 6))
-        signalplot.apply(font_family='serif')
+        signalplot.apply(font_family="serif")
 
-    # Observed series
+        # Observed series
         ax.plot(ts.index, ts.values, "k-", label="Observed", alpha=0.7, linewidth=1.8)
 
-    # Smoothed level (trend) component
+        # Smoothed level (trend) component
         smoothed = results.level.smoothed
         ax.plot(
             ts.index,
@@ -107,7 +106,9 @@ def plot_decomposition(ts: pd.Series, results, plot: bool = False) -> None:
         plt.close(fig)
 
 
-def plot_forecast(ts: pd.Series, results, horizon: int = 10, plot: bool = False) -> None:
+def plot_forecast(
+    ts: pd.Series, results, horizon: int = 10, plot: bool = False
+) -> None:
     """Produce and plot a multi-step forecast with confidence intervals."""
     logger.info("Producing %d-step Kalman forecast...", horizon)
     forecast_res = results.get_forecast(steps=horizon)
@@ -122,8 +123,8 @@ def plot_forecast(ts: pd.Series, results, horizon: int = 10, plot: bool = False)
 
     if plot:
         fig, ax = plt.subplots(figsize=(14, 6))
-        
-    # Plot last 20 years of history for context
+
+        # Plot last 20 years of history for context
         history_window = min(20, len(ts))
         ax.plot(
             ts.index[-history_window:],
@@ -134,7 +135,7 @@ def plot_forecast(ts: pd.Series, results, horizon: int = 10, plot: bool = False)
             alpha=0.7,
         )
 
-    # Plot forecast and 95% interval
+        # Plot forecast and 95% interval
         ax.plot(
             forecast_index,
             mean_forecast.values,
@@ -145,7 +146,7 @@ def plot_forecast(ts: pd.Series, results, horizon: int = 10, plot: bool = False)
         )
         lower = conf_int.iloc[:, 0].values
         upper = conf_int.iloc[:, 1].values
-    # Energy consumption cannot be negative; clip lower band at zero for visualization
+        # Energy consumption cannot be negative; clip lower band at zero for visualization
         lower_clipped = lower.clip(min=0.0)
 
         ax.fill_between(
@@ -186,5 +187,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-
