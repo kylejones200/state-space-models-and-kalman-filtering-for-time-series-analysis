@@ -14,7 +14,6 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 
 # Set random seeds
-np.random.seed(42)
 try:
     import tensorflow as tf
     tf.random.set_seed(42)
@@ -60,6 +59,7 @@ kf = KalmanFilter(dim_x=2, dim_z=1)
 
 # Code block 3
 from statsmodels.tsa.statespace.structural import UnobservedComponents
+np.random.seed(42)
 
 # Decompose into trend, seasonal, and irregular components
 uc_model = UnobservedComponents(
