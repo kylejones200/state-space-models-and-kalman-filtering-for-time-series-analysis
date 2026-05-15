@@ -1,9 +1,7 @@
 """Core functions for state space models and Kalman filtering."""
 
 import numpy as np
-import pandas as pd
 from pathlib import Path
-from typing import Tuple
 from scipy import linalg
 import matplotlib.pyplot as plt
 import logging
@@ -12,7 +10,7 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 def kalman_filter(y: np.ndarray, F: np.ndarray, H: np.ndarray, Q: np.ndarray,
-                  R: np.ndarray, x0: np.ndarray, P0: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+                  R: np.ndarray, x0: np.ndarray, P0: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Kalman filter for state space model."""
     n = len(y)
     x = np.zeros((n, len(x0)))
