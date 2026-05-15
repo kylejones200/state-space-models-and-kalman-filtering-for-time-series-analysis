@@ -1,57 +1,141 @@
-# State Space Models and Kalman Filtering for Time Series Analysis Techniques for understanding the hidden states of time series data
+# State Space Models and Kalman Filtering for Time Series Analysis
 
-### State Space Models and Kalman Filtering for Time Series Analysis
-#### Techniques for understanding the hidden states of time series data
-State space models analyze time series by modeling the underlying, unobserved states that generate observable data. The Kalman filter, a cornerstone of this approach, provides an elegant solution for estimating these hidden states in real time. This article explores the theoretical foundations and practical implementations of these methods, showcasing their versatility in various applications.
+*Techniques for understanding the hidden states of time series data*
 
+---
 
-<figcaption>Kalman filter in action</figcaption>
+Most time series models work directly with observed values. State space models take a different approach: they assume there is an underlying hidden state — a true signal — and that what you observe is that signal corrupted by noise. The model estimates the hidden state at each point in time, filtering out the noise.
 
+The Kalman filter is the algorithm that does this estimation for linear systems. It is the engine behind GPS navigation, spacecraft guidance, financial smoothing models, and econometric decompositions. Understanding it gives you a fundamentally different way to think about time series.
 
-### Mathematical Foundation of State Space Models
-State Space Models describe dynamic systems through a pair of equations. The State Transition Equation, also known as the process model, mathematically captures how system states change from one time step to the next, incorporating both deterministic dynamics and process noise. This equation forms the core of predicting system behavior and represents the internal dynamics that may not be directly observable.
+## The Two Equations
 
-The Observation Equation, also called the measurement model, establishes the mathematical relationship between the hidden system states and the measurements that can actually be observed or measured. This equation is crucial because it allows us to infer information about the internal states from external measurements, accounting for measurement noise and sensor characteristics.
+Every state space model has two equations.
 
-These equations form the basis for implementing various state estimation techniques, from simple Kalman Filters to more complex nonlinear estimators. This mathematical structure provides a powerful and flexible way to model and analyze dynamic systems across numerous applications.
+**State transition equation** (how the hidden state evolves):
 
+```
+x_t = F · x_{t-1} + w_t,    w_t ~ N(0, Q)
+```
 
-### The Kalman Filter Algorithm
-The Kalman filter is a recursive estimation algorithm for linear systems affected by Gaussian noise distributions. This filter achieves optimal state estimation by combining model predictions with sensor measurements in a mathematically rigorous way. The algorithm operates through a two-step process that continuously refines its estimates as new data becomes available.
+- `x_t` — the hidden state at time t
+- `F` — transition matrix (how the state moves forward)
+- `w_t` — process noise with covariance Q
 
-The Prediction step, also known as the time update, uses the system model to forecast the next state and its associated uncertainty covariance. This step projects the current state estimate forward in time according to the known system dynamics, accounting for any control inputs and process noise. The prediction equations propagate both the state estimate and its uncertainty to provide a prior estimate for the next time step.
+**Observation equation** (how measurements relate to the state):
 
-The Update step, or measurement update, incorporates new sensor measurements to refine the predicted state estimate. When new observations become available, the filter computes the Kalman gain --- a weighting factor that balances the relative uncertainty between predictions and measurements. This gain is used to optimally combine the prediction with new measurements, resulting in an improved posterior state estimate and updated uncertainty covariance. The recursive nature of these two steps makes the Kalman filter computationally efficient and suitable for real-time applications.
+```
+y_t = H · x_t + v_t,    v_t ~ N(0, R)
+```
 
+- `y_t` — what you actually observe
+- `H` — measurement matrix (which parts of the state you see)
+- `v_t` — measurement noise with covariance R
 
-### Practical Example: Tracking a Moving Object
-Object tracking is a simple real-world example of state estimation techniques. In this example, the true object motion follows a predictable sinusoidal pattern, but our ability to track it is complicated by noise in our sensor measurements, making it an excellent demonstration of filter performance.
+The key parameters to tune are Q (how much you trust your model of how the state evolves) and R (how much you trust your measurements). High Q means the state can change rapidly. High R means your measurements are noisy and the filter should weight them less.
 
-The system can be modeled using state space equations where the state vector includes both position and velocity components. The sinusoidal trajectory provides a natural test case because it involves continuous changes in both position and velocity, challenging the filter's ability to maintain accurate tracking. The state transition model must account for the underlying sinusoidal dynamics, while the measurement model reflects the noisy position observations from sensors.
+## The Kalman Filter Algorithm
 
-Implementation of this tracking system typically shows how the filter can effectively remove measurement noise and provide smooth estimates of the object's true position and velocity. This example particularly highlights the filter's ability to maintain tracking accuracy even when measurements are noisy or intermittent, making it a valuable demonstration of state estimation principles in action. The performance can be visualized by plotting the true trajectory, noisy measurements, and filtered estimates, clearly showing how the filter smooths out measurement noise while maintaining accurate tracking.
+The filter operates in two steps at each time point:
 
+**Predict** — project the state estimate forward using the transition model:
 
-### Advanced Filters for Nonlinear Systems
-Extended Kalman Filter (EKF) linearizes nonlinear models around the current state estimate, making it possible to apply Kalman filter principles to nonlinear systems. EKF operates by performing a local linearization using Taylor series expansion and computing Jacobian matrices (partial derivatives) to create a linear approximation at the current operating point. This process involves two main steps: prediction, where the state is projected ahead using the nonlinear model, and update, where the linearized model is used for the Kalman update equations.
+```
+x̂_{t|t-1} = F · x̂_{t-1|t-1}
+P_{t|t-1} = F · P_{t-1|t-1} · F' + Q
+```
 
-The EKF is used in navigation systems, robot localization, target tracking, process control, and financial modeling. Its ability to handle nonlinear systems while maintaining relatively efficient computation makes it a practical choice for many real-world applications.
+**Update** — incorporate the new observation to correct the prediction:
 
+```
+K_t = P_{t|t-1} · H' · (H · P_{t|t-1} · H' + R)^{-1}
+x̂_{t|t} = x̂_{t|t-1} + K_t · (y_t - H · x̂_{t|t-1})
+P_{t|t} = (I - K_t · H) · P_{t|t-1}
+```
 
-Unscented Kalman Filter (UKF) uses carefully chosen sigma points to estimate and propagate the mean and covariance of system states through nonlinear transformations, avoiding the need for explicit Jacobian calculations required by EKF. The UKF operates by selecting a set of sample points (sigma points) around the current state estimate, propagating these points through the nonlinear system, and then reconstructing the transformed mean and covariance from the propagated points. This process involves two main steps: generating and propagating sigma points through the nonlinear model, and reconstructing the statistical properties from the transformed points.
+`K_t` is the Kalman gain — the weight given to the new observation vs. the prior prediction. When R is small (measurements are accurate), the gain is high and the filter trusts observations. When Q is small (the model is reliable), the gain is low and the filter trusts the prediction.
 
-The UKF is used in similar applications as EKF, including navigation, target tracking, and state estimation for autonomous vehicles, but tends to perform better in systems with stronger nonlinearities. Its ability to capture higher-order statistical moments while maintaining reasonable computational complexity makes it increasingly preferred over EKF in many modern applications.
+## Python Implementation
 
+`statsmodels` provides a clean state space interface through `UnobservedComponents`:
 
-### Practical Applications and Visualization
-Here's how to visualize the results of the Kalman filter:
+```python
+import numpy as np
+import pandas as pd
+import statsmodels.api as sm
 
+np.random.seed(42)
+n = 200
+true_state = np.cumsum(np.random.normal(0, 0.5, n))
+observed = true_state + np.random.normal(0, 2.0, n)
 
-Key considerations in selecting and implementing state estimation filters center on matching the filter type to the system characteristics and noise properties. For linear systems with Gaussian noise, the standard Kalman Filter provides optimal estimation. However, nonlinear systems require more advanced approaches like EKF or UKF, while systems with non-Gaussian noise distributions are best handled by Particle Filters. This systematic approach to model selection ensures the most effective estimation strategy for a given application.
+model = sm.tsa.UnobservedComponents(
+    observed,
+    level='local level'
+)
+result = model.fit(disp=False)
 
-Parameter tuning forms a crucial part of filter implementation, with particular attention needed for the process noise covariance (Q) and measurement noise covariance (R) matrices. These parameters significantly influence filter performance and must be carefully calibrated to reflect the actual system and measurement uncertainties. Q represents the uncertainty in the system model, while R represents the uncertainty in sensor measurements.
+filtered = result.filtered_state[0]
+smoothed = result.smoothed_state[0]
+```
 
-Performance evaluation typically relies on metrics such as Root Mean Square Error (RMSE), which quantifies the difference between estimated and true states. RMSE provides a standardized way to assess filter accuracy and compare different implementations, helping engineers optimize their filter designs and ensure reliable state estimation. This metric is particularly valuable during the testing and validation phases of filter development.
+The `local level` specification is the simplest state space model: the hidden state is a random walk and observations are noisy measurements of it. The filter recovers the true underlying level.
 
-### Conclusion
-State space models and Kalman filtering are powerful tools for time series analysis, offering robust solutions to noisy measurements and hidden states. Whether tackling linear or nonlinear systems, understanding the trade-offs between accuracy, complexity, and computational requirements is essential for successful implementation.
+`filtered_state` uses only information up to time t (causal). `smoothed_state` uses the full dataset (non-causal). For forecasting, use filtered. For retrospective analysis of what the true state was, use smoothed.
+
+## Practical Example: Object Tracking
+
+Consider tracking an object moving along a sinusoidal path with noisy position sensors. The state vector holds position and velocity:
+
+```python
+dt = 0.1
+F = np.array([[1, dt], [0, 1]])  # constant velocity model
+H = np.array([[1, 0]])            # we observe position only
+Q = np.eye(2) * 0.01             # small process noise
+R = np.array([[4.0]])            # noisy sensor
+
+x = np.array([0.0, 0.0])        # initial state
+P = np.eye(2)                    # initial covariance
+
+filtered_positions = []
+for y_t in noisy_observations:
+    # Predict
+    x = F @ x
+    P = F @ P @ F.T + Q
+    # Update
+    K = P @ H.T @ np.linalg.inv(H @ P @ H.T + R)
+    x = x + K @ (y_t - H @ x)
+    P = (np.eye(2) - K @ H) @ P
+    filtered_positions.append(x[0])
+```
+
+The filter outputs a smooth position estimate even when individual measurements are scattered. The velocity state is never directly observed but is estimated from the pattern of position changes.
+
+## Advanced Filters for Nonlinear Systems
+
+The standard Kalman filter assumes linear state transitions and Gaussian noise. Two extensions handle nonlinear systems:
+
+**Extended Kalman Filter (EKF)** — linearizes the nonlinear model at each step using a first-order Taylor expansion. Jacobian matrices replace the linear transition and measurement matrices. Fast but can diverge when the nonlinearity is severe.
+
+**Unscented Kalman Filter (UKF)** — propagates a set of carefully chosen "sigma points" through the nonlinear function and reconstructs the mean and covariance from the results. More accurate than EKF for strongly nonlinear systems because it captures higher-order effects without requiring Jacobians. Preferred for modern navigation and autonomous systems.
+
+For non-Gaussian noise (outliers, multimodal distributions), neither filter is optimal — particle filters handle those cases at significantly higher computational cost.
+
+## Choosing Q and R
+
+This is the hardest part of practical Kalman filtering. Some guidelines:
+
+- **Start with R from sensor specifications** if available. Measurement noise is often characterized by hardware manufacturers.
+- **Tune Q based on how quickly the true state changes.** A slowly drifting signal needs small Q. A rapidly varying signal needs large Q.
+- **If the filter is slow to respond to real changes**, Q is probably too small.
+- **If the filtered output is noisy**, Q is probably too large or R too small.
+
+The ratio Q/R matters more than the absolute values.
+
+## Conclusion
+
+State space models and Kalman filtering offer a principled framework for separating signal from noise in time series data. The two-equation structure is flexible enough to model position tracking, economic trend decomposition, seasonal adjustment, and latent factor models — all with the same algorithm.
+
+For linear systems with Gaussian noise, the Kalman filter is optimal — it is mathematically provable that no other algorithm produces better estimates. For nonlinear or non-Gaussian systems, EKF and UKF provide practical approximations.
+
+The `statsmodels` `UnobservedComponents` class is the easiest entry point in Python. For custom state spaces, implement the predict-update loop directly in NumPy — it is only about 10 lines of code.
