@@ -50,16 +50,18 @@ def plot_kalman_filter(
     plot: bool = False,
 ):
     """Plot Kalman filter results"""
-    if plot:
-        fig, ax = plt.subplots(figsize=(10, 6))
+    if not plot:
+        return
 
-        ax.plot(y, label="Observed", color="#4A90A4", linewidth=1.2, alpha=0.7)
-        ax.plot(
-            x_filtered[:, 0], label="Filtered State", color="#D4A574", linewidth=1.2
-        )
-        ax.set_xlabel("Time")
-        ax.set_ylabel("Value")
-        ax.legend(loc="best")
+    fig, ax = plt.subplots(figsize=(10, 6))
 
-        plt.savefig(output_path, dpi=100, bbox_inches="tight")
-        plt.close()
+    ax.plot(y, label="Observed", color="#4A90A4", linewidth=1.2, alpha=0.7)
+    ax.plot(
+        x_filtered[:, 0], label="Filtered State", color="#D4A574", linewidth=1.2
+    )
+    ax.set_xlabel("Time")
+    ax.set_ylabel("Value")
+    ax.legend(loc="best")
+
+    plt.savefig(output_path, dpi=100, bbox_inches="tight")
+    plt.close()
