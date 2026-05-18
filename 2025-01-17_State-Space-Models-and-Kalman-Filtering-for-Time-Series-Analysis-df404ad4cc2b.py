@@ -1,6 +1,5 @@
 # Description: Short example for State Space Models and Kalman Filtering for Time Series Analysis.
 
-
 import matplotlib.pyplot as plt
 import numpy as np
 from filterpy.kalman import MerweScaledSigmaPoints, UnscentedKalmanFilter

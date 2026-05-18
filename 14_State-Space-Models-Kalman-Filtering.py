@@ -27,7 +27,6 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 
-
 BASE_DIR = Path(__file__).resolve().parents[1]
 DATA_PATH = BASE_DIR / "data" / "use_OK.csv"
 
@@ -36,7 +35,6 @@ def load_energy_series(csv_path: Path) -> pd.Series:
     """Load and aggregate Oklahoma energy consumption into an annual series."""
     logger.info("Loading energy data from %s", csv_path)
     df = pd.read_csv(csv_path)
-
     year_cols = [col for col in df.columns if col.isdigit()]
     if not year_cols:
         raise ValueError("No year columns found in energy consumption file.")
@@ -46,7 +44,6 @@ def load_energy_series(csv_path: Path) -> pd.Series:
         data=year_totals.values,
         index=pd.to_datetime(year_totals.index, format="%Y"),
     ).sort_index()
-
     logger.info(
         "Time series length: %d (from %s to %s)",
         len(ts),
@@ -74,14 +71,11 @@ def fit_structural_model(ts: pd.Series):
 def plot_decomposition(ts: pd.Series, results, plot: bool = False) -> None:
     """Plot observed data and smoothed trend component."""
     logger.info("Plotting Kalman-smoothed trend decomposition...")
-
     if plot:
         fig, ax = plt.subplots(figsize=(14, 6))
         signalplot.apply(font_family="serif")
-
         # Observed series
         ax.plot(ts.index, ts.values, "k-", label="Observed", alpha=0.7, linewidth=1.8)
-
         # Smoothed level (trend) component
         smoothed = results.level.smoothed
         ax.plot(
@@ -91,7 +85,6 @@ def plot_decomposition(ts: pd.Series, results, plot: bool = False) -> None:
             linewidth=2.2,
             label="Kalman-smoothed level",
         )
-
         ax.set_title(
             "Kalman Filter Decomposition: Observed vs. Smoothed Trend",
             fontsize=14,
@@ -114,16 +107,13 @@ def plot_forecast(
     forecast_res = results.get_forecast(steps=horizon)
     mean_forecast = forecast_res.predicted_mean
     conf_int = forecast_res.conf_int(alpha=0.05)
-
     forecast_index = pd.date_range(
         start=ts.index[-1] + pd.DateOffset(years=1),
         periods=horizon,
         freq="YS",
     )
-
     if plot:
         fig, ax = plt.subplots(figsize=(14, 6))
-
         # Plot last 20 years of history for context
         history_window = min(20, len(ts))
         ax.plot(
@@ -134,7 +124,6 @@ def plot_forecast(
             linewidth=2,
             alpha=0.7,
         )
-
         # Plot forecast and 95% interval
         ax.plot(
             forecast_index,
@@ -148,7 +137,6 @@ def plot_forecast(
         upper = conf_int.iloc[:, 1].values
         # Energy consumption cannot be negative; clip lower band at zero for visualization
         lower_clipped = lower.clip(min=0.0)
-
         ax.fill_between(
             forecast_index,
             lower_clipped,
@@ -157,7 +145,6 @@ def plot_forecast(
             alpha=0.2,
             label="95% Interval",
         )
-
         ax.axvline(ts.index[-1], color="gray", linestyle=":", linewidth=1, alpha=0.6)
         ax.set_title(
             "Kalman Filter Forecast with Uncertainty",
@@ -177,9 +164,7 @@ def main() -> None:
     """Run the full Kalman-based analysis on Oklahoma energy data."""
     ts = load_energy_series(DATA_PATH)
     results = fit_structural_model(ts)
-
     logger.info("Model summary (truncated):\n%s", results.summary().as_text()[:800])
-
     plot_decomposition(ts, results)
     # Use a modest forecast horizon for annual data to avoid unrealistically wide bands
     plot_forecast(ts, results, horizon=5)

@@ -1,8 +1,8 @@
 """UK vital statistics state-space / structural model demo."""
 
-from statsmodels.tsa.statespace.structural import UnobservedComponents
 import matplotlib.pyplot as plt
 import pandas as pd
+from statsmodels.tsa.statespace.structural import UnobservedComponents
 
 
 def main() -> None:
@@ -10,11 +10,9 @@ def main() -> None:
     births = 700 + 20 * (pd.Series(range(100)).values % 20) / 20
     marriages = 200 + 10 * (pd.Series(range(100)).values % 15) / 15
     df = pd.DataFrame({"Births": births, "Marriages": marriages}, index=dates)
-
     model = UnobservedComponents(df["Births"], level="local linear trend", seasonal=4)
     result = model.fit(disp=False)
     print(result.summary())
-
     pred = result.get_prediction()
     fig, ax = plt.subplots(figsize=(10, 4))
     df["Births"].plot(ax=ax, label="Observed", color="black")
